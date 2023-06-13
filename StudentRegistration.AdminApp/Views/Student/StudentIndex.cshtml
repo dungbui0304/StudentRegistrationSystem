@@ -1,0 +1,155 @@
+﻿
+@{
+    ViewData["Title"] = "Đăng ký môn học";
+    Layout = "~/Views/Shared/_LayoutStudent.cshtml";
+    <style>
+        /* CSS cho giao diện trang */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color: #f0f0f0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .form-group button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .footer {
+            background-color: #f0f0f0;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .student-info {
+            margin-bottom: 20px;
+        }
+
+        .student-info label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .student-info p {
+            margin: 0;
+        }
+
+        .course-list {
+            margin-bottom: 20px;
+        }
+
+        .course-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .course-list table th,
+        .course-list table td {
+            padding: 10px;
+            border: 1px solid #ccc;
+        }
+
+        .course-list table th {
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+        .button {
+            float: right;
+        }
+    </style>
+}
+
+    <div class="header">
+        <h1>Đăng ký môn học</h1>
+    </div>
+
+    <div class="container">
+
+        <div class="course-list">
+            <label>Danh sách môn học:</label>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mã môn học</th>
+                        <th>Tên môn học</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>CS101</td>
+                        <td>Lập trình C#</td>
+                    </tr>
+                    <tr>
+                        <td>CS201</td>
+                        <td>Lập trình Java</td>
+                    </tr>
+                    <tr>
+                        <td>CS301</td>
+                        <td>Lập trình PHP</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <form method="post" action="/student/register-course">
+            <div class="form-group">
+                <label for="courseId">Mã môn học:</label>
+                <input type="text" id="courseId" name="courseId" required>
+            </div>
+
+            <div class="form-group">
+                <label for="courseName">Tên môn học:</label>
+                <input type="text" id="courseName" name="courseName" required>
+            </div>
+
+            <div class="form-group">
+                <button type="submit">Đăng ký</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="footer">
+        <p>Create By Dung Bui FPT</p>
+    </div>
+
+    <script>
+    </script>
+

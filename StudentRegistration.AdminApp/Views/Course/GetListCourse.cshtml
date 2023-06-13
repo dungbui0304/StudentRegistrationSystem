@@ -1,0 +1,55 @@
+﻿@using StudentRegistration.ViewModel.Common
+@model PagedResult<StudentRegistration.ViewModel.Courses.CourseViewModel>
+
+@{
+    ViewData["Title"] = "Đăng ký môn học";
+    Layout = "~/Views/Shared/_LayoutStudent.cshtml";
+    <style>
+        .btn-res {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+}
+
+<div class="container">
+    <h2>Đăng ký môn học</h2>
+
+    @if (Model.Items.Count == 0)
+    {
+        <p>No courses available for registration.</p>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Mã môn học</th>
+                    <th>Tên môn học</th>
+                    <th>Mô tả</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var course in Model.Items)
+                {
+                    <tr>
+                        <td>@course.Id</td>
+                        <td>@course.Name</td>
+                        <td>@course.Description</td>
+                        <td>
+                            <form method="post" asp-action="RegisterCourse" asp-controller="Student">
+                                <input type="hidden" name="courseId" value="@course.Id" />
+                                <button class="btn-res">Register</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

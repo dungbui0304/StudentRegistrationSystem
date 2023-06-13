@@ -1,0 +1,74 @@
+﻿@using StudentRegistration.ViewModel.Common
+@model StudentRegistration.ViewModel.Students.StudentViewModel
+@{
+    ViewData["Title"] = "Thông tin sinh viên";
+    Layout = "~/Views/Shared/_LayoutStudent.cshtml";
+    <style>
+            body {
+                padding: 50px;
+            }
+
+            .profile-card {
+                width: 400px;
+                background-color: #f8f9fa;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                margin: 0 auto;
+            }
+
+            .profile-card h2 {
+                text-align: center;
+            }
+
+            .profile-card .profile-picture {
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                margin: 0 auto;
+                background-color: #ddd;
+                background-position: center;
+                background-size: cover;
+            }
+
+            .profile-card .profile-info {
+                margin-top: 20px;
+            }
+
+            .profile-card .profile-info p {
+                margin-bottom: 10px;
+            }
+
+            .profile-card .profile-info label {
+                font-weight: bold;
+            }
+
+            .profile-card .profile-info .btn-edit-profile {
+                display: block;
+                width: 100%;
+                text-align: center;
+                margin-top: 20px;
+            }
+     </style>
+}
+<body>
+    <div class="container">
+        <div class="profile-card">
+            <h2>Student Profile</h2>
+            <div class="profile-picture">
+                <img class="profile-picture"src="/assets/img/profile.jpg" >
+            </div>
+            <div class="profile-info">
+                <p><label>Mã sinh viên:</label>@Model.Id</p>
+                <p><label>Họ tên:</label>@Model.LastName @Model.FirstName</p>   
+                <p><label>Email:</label>@Model.Email</p>
+                <p><label>Số điện thoại:</label>@Model.PhoneNumber</p>
+            </div>
+            <a class="btn btn-primary btn-edit-profile">Edit Profile</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>

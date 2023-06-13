@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Registration System</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+    <style>
+        /* Tùy chỉnh giao diện của trang web */
+        body {
+            padding-top: 60px;
+        }
+
+        .navbar {
+            background-color: #343a40;
+        }
+
+        .navbar-brand {
+            color: #fff;
+        }
+        .navbar-nav {
+          display: flex;
+          justify-content: flex-end;
+        }
+
+        .nav-item {
+          margin-right: 10px;
+          list-style: none;
+        }
+
+        .nav-link,
+        button[type="submit"] {
+          padding: 8px 12px;
+          border: none;
+          background-color: transparent;
+          text-decoration: none;
+          cursor: pointer;
+          color: rgba(255,255,255,.5);
+        }
+
+        .nav-link:hover,
+        button[type="submit"]:hover {
+          color: #f0f0f0;
+        }
+
+    </style>
+    @*Thêm các file CSS khác cần thiết*@
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="#">Student Registration System</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-action="GetListCourse" asp-controller="Course">Registration</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-action="Profile" asp-controller="Student">Profile</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-action="GetCourseRegister" asp-controller="Student">Course Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-action="ChangePassword" asp-controller="Student">ChangePassword</a>
+                </li>
+                <li class="nav-item">
+                    <form method="POST" asp-controller="User" asp-action="Logout">
+                        <button type="submit" >Logout</button>
+                    </form>                      
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        @RenderBody()
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    @*Thêm các file JavaScript khác cần thiết*@
+</body>
+</html>
