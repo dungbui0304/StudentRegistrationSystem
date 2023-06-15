@@ -7,6 +7,35 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <div class="container-fluid">
+     @if(ViewBag.ApiResponse != null)
+        {
+          var apiResponse = ViewBag.ApiResponse as ApiResponse<string>;
+        if(@apiResponse.Status)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  <strong>@apiResponse.Message</strong>
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span class="close-icon"><i class="fas fa-times"></i></span>
+                  </button>
+            </div>
+        } else
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <strong>@apiResponse.Message</strong>
+                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+            </div>           
+        }
+        <script>
+            $(function () {
+                // Đóng thông báo khi nút "Close" được nhấn
+                $('.alert .close').on('click', function () {
+                    $(this).closest('.alert').alert('close');
+                });
+            });
+        </script>
+    }
     <h1 class="mt-4">Danh sách môn học</h1>
     <ol class="breadcrumb mb-4">
         <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>

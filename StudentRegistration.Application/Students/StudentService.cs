@@ -58,6 +58,7 @@ namespace StudentRegistration.Application.Students
                 //}
                 if (!result.Succeeded)
                 {
+                    return false;
                     throw new Exception("Cannot create user");
                 }
                 await _userManager.AddToRoleAsync(user, "student");
@@ -80,6 +81,7 @@ namespace StudentRegistration.Application.Students
             }
             catch (Exception ex)
             {
+                return false;
                 throw new Exception("Cannot create student", ex);
             };
         }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using StudentRegistration.AdminApp.Services.Registration;
+using StudentRegistration.ViewModel.Common;
 using StudentRegistration.ViewModel.Registrations;
 
 namespace StudentRegistration.AdminApp.Controllers
@@ -24,6 +26,13 @@ namespace StudentRegistration.AdminApp.Controllers
                 return BadRequest(ModelState);
             }
             var registrations = await _registrationApiClient.GetAll();
+            var responseData = TempData["ApiResponse"];
+            if (responseData != null)
+            {
+                var apiResponse = JsonConvert.DeserializeObject<ApiResponse<string>>((string)responseData);
+                TempData["ApiResponse"] = null;
+                ViewBag.ApiResponse = apiResponse;
+            }
             return View(registrations);
         }
 
@@ -45,7 +54,22 @@ namespace StudentRegistration.AdminApp.Controllers
             }
             var result = await _registrationApiClient.Create(request);
             if (!result)
-                return BadRequest(result);
+            {
+                var errorResponse = new ApiResponse<string>()
+                {
+                    Status = false,
+                    Message = $"Đăng kí học có mã sinh viên {request.StudentId} và mã môn học {request.CourseId} đã tồn tại. Vui lòng tạo lại!"
+                };
+                TempData["ApiResponse"] = JsonConvert.SerializeObject(errorResponse);
+                return RedirectToAction("AdminIndex", "Student");
+            }
+
+            var successResponse = new ApiResponse<string>()
+            {
+                Status = true,
+                Message = $"Tạo thành công đăng kí học {request.Id}!"
+            };
+            TempData["ApiResponse"] = JsonConvert.SerializeObject(successResponse);
             return RedirectToAction("Index", "Registration");
         }
 
@@ -58,6 +82,12 @@ namespace StudentRegistration.AdminApp.Controllers
             var result = await _registrationApiClient.Delete(id);
             if (!result)
                 return BadRequest(result);
+            var successResponse = new ApiResponse<string>()
+            {
+                Status = true,
+                Message = $"Xóa đăng kí học thành công!"
+            };
+            TempData["ApiResponse"] = JsonConvert.SerializeObject(successResponse);
             return RedirectToAction("Index", "Registration");
         }
 
@@ -82,6 +112,12 @@ namespace StudentRegistration.AdminApp.Controllers
             var result = await _registrationApiClient.Update(request);
             if (!result)
                 return NotFound();
+            var successResponse = new ApiResponse<string>()
+            {
+                Status = true,
+                Message = $"Cập nhật đăng kí học thành công !"
+            };
+            TempData["ApiResponse"] = JsonConvert.SerializeObject(successResponse);
             return RedirectToAction("Index", "Registration");
         }
     }
