@@ -82,19 +82,29 @@ namespace StudentRegistration.Application.Users
             }
         }
 
-        public async Task<PagedResult<UserViewModel>> GetAll()
+        public async Task<PagedResult<UserViewModel>> GetUserPaging(int pageIndex, int pageSize)
         {
-            var users = _userManager.Users;
-            var userViewModel = users.Select(x => new UserViewModel()
+            // tính toán tổng số trang và số lượng item trên mỗi trang
+            var totalItems = await _userManager.Users.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            // lấy dữ liệu trang hiện tại
+            var currentPageData = _userManager.Users.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+            var userViewModel = currentPageData.Select(s => new UserViewModel
             {
-                Id = x.Id,
-                UserName = x.UserName,
-                Email = x.Email,
-                PhoneNumber = x.PhoneNumber,
+                Id = s.Id,
+                UserName = s.UserName,
+                PhoneNumber = s.PhoneNumber,
+                Email = s.Email
             }).ToList();
+
             var pagedResult = new PagedResult<UserViewModel>()
             {
                 Items = userViewModel,
+                TotalItems = totalItems,
+                PageSize = pageSize,
+                CurrentPage = pageIndex,
+                TotalPage = totalPages
             };
             return pagedResult;
         }

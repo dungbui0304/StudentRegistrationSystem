@@ -17,9 +17,9 @@ namespace StudentRegistration.BackendApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetRegistrationPaging(int pageIndex, int pageSize)
         {
-            var registrations = await _registrationService.GetListRegistration();
+            var registrations = await _registrationService.GetRegistrationPaging(pageIndex, pageSize);
             if (registrations == null)
                 return BadRequest("Cannot load list registrations");
             return Ok(registrations);

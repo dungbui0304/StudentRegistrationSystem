@@ -17,13 +17,23 @@ namespace StudentRegistration.BackendApi.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetCoursePaging(int pageIndex, int pageSize)
         {
-            var courses = await _courseService.GetListCourse();
+            var courses = await _courseService.GetCoursePaging(pageIndex, pageSize);
             if (courses == null)
                 return BadRequest("Cannot load list courses");
             return Ok(courses);
         }
+
+        [HttpGet("list-course")]
+        public async Task<IActionResult> GetAll()
+        {
+            var courses = await _courseService.GetAll();
+            if (courses == null)
+                return BadRequest("Cannot load list courses");
+            return Ok(courses);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateCourseRequest request)

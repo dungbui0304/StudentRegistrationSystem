@@ -7,7 +7,7 @@ namespace StudentRegistration.AdminApp.Services
     {
         public Task<string> Authenticate(LoginRequest request);
         public Task<bool> Register(RegisterRequest request);
-        public Task<PagedResult<UserViewModel>> GetAll();
+        public Task<PagedResult<UserViewModel>> GetUserPaging(int pageIndex, int pageSize);
         public Task<UserViewModel> GetById(Guid id);
         public Task<bool> Update(UpdateRequest request);
         public Task<bool> Delete(Guid id);

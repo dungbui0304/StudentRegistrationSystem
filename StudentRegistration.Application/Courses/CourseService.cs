@@ -1,4 +1,5 @@
-﻿using StudentRegistration.Data.EF;
+﻿using Microsoft.EntityFrameworkCore;
+using StudentRegistration.Data.EF;
 using StudentRegistration.Data.Entities;
 using StudentRegistration.ViewModel.Common;
 using StudentRegistration.ViewModel.Courses;
@@ -12,18 +13,28 @@ namespace StudentRegistration.Application.Courses
         {
             _context = context;
         }
-        public async Task<PagedResult<CourseViewModel>> GetListCourse()
+        public async Task<PagedResult<CourseViewModel>> GetCoursePaging(int pageIndex, int pageSize)
         {
-            var courses = _context.Courses.ToList();
-            var courseViewModel = courses.Select(x => new CourseViewModel()
+            // tính toán tổng số trang và số lượng item trên mỗi trang
+            var totalItems = await _context.Courses.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            // lấy dữ liệu trang hiện tại
+            var currentPageData = _context.Courses.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+            var courseViewModel = currentPageData.Select(s => new CourseViewModel
             {
-                Id = x.Id,
-                Name = x.Name,
-                Description = x.Description,
+                Id = s.Id,
+                Name = s.Name,
+                Description = s.Description
             }).ToList();
+
             var pagedResult = new PagedResult<CourseViewModel>()
             {
                 Items = courseViewModel,
+                TotalItems = totalItems,
+                PageSize = pageSize,
+                CurrentPage = pageIndex,
+                TotalPage = totalPages
             };
             return pagedResult;
         }
@@ -90,6 +101,24 @@ namespace StudentRegistration.Application.Courses
                 Description = course.Description
             };
             return courseViewModel;
+        }
+
+        public async Task<PagedResult<CourseViewModel>> GetAll()
+        {
+            var courses = await _context.Courses.ToListAsync();
+
+            var courseViewModel = courses.Select(s => new CourseViewModel
+            {
+                Id = s.Id,
+                Name = s.Name,
+                Description = s.Description
+            }).ToList();
+
+            var pagedResult = new PagedResult<CourseViewModel>()
+            {
+                Items = courseViewModel
+            };
+            return pagedResult;
         }
     }
 }

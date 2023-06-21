@@ -30,9 +30,9 @@ namespace StudentRegistration.BackendApi.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetUserPaging(int pageIndex, int pageSize)
         {
-            var users = await _userService.GetAll();
+            var users = await _userService.GetUserPaging(pageIndex, pageSize);
             if (users == null)
                 return BadRequest("Cannot load list user");
             return Ok(users);

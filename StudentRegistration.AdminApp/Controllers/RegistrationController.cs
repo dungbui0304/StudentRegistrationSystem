@@ -17,7 +17,7 @@ namespace StudentRegistration.AdminApp.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int pageIndex, int pageSize = 3)
         {
             if (!IsLoggedIn())
                 return RedirectToAction("Index", "Login");
@@ -25,7 +25,11 @@ namespace StudentRegistration.AdminApp.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var registrations = await _registrationApiClient.GetAll();
+
+            if (pageIndex == null || pageIndex <= 0)
+                pageIndex = 1;
+
+            var registrations = await _registrationApiClient.GetRegistrationPaging(pageIndex, pageSize);
             var responseData = TempData["ApiResponse"];
             if (responseData != null)
             {

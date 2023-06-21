@@ -8,7 +8,7 @@ namespace StudentRegistration.Application.Students
     {
         public Task<UpdateStudentRequest> GetById(string id);
         public Task<StudentViewModel> GetByUserId(Guid userId);
-        public Task<PagedResult<StudentViewModel>> GetListStudent();
+        public Task<PagedResult<StudentViewModel>> GetStudentPaging(int page, int pageSize);
         public Task<bool> Create(CreateStudentRequest request);
         public Task<bool> Edit(UpdateStudentRequest updateRequest);
         public Task<bool> Delete(string Id);

@@ -31,21 +31,32 @@ namespace StudentRegistration.AdminApp.Services.Course
             var result = JsonConvert.DeserializeObject<bool>(data);
             return result;
         }
-
-        public async Task<PagedResult<CourseViewModel>> GetAll()
+        public async Task<PagedResult<CourseViewModel>> GetCoursePaging(int pageIndex, int pageSize)
         {
             // get token gán vào header khi gọi api
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             // thực hiện gọi api
-            var response = await _httpClient.GetAsync("api/Course");
+            var response = await _httpClient.GetAsync($"api/Course?pageIndex={pageIndex}&pageSize={pageSize}");
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadAsStringAsync();
             // convert result to json
             var courses = JsonConvert.DeserializeObject<PagedResult<CourseViewModel>>(result);
             return courses;
         }
-
+        public async Task<PagedResult<CourseViewModel>> GetAll()
+        {
+            // get token gán vào header khi gọi api
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            // thực hiện gọi api
+            var response = await _httpClient.GetAsync($"api/Course/list-course");
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadAsStringAsync();
+            // convert result to json
+            var courses = JsonConvert.DeserializeObject<PagedResult<CourseViewModel>>(result);
+            return courses;
+        }
         public async Task<CourseViewModel> GetById(string id)
         {
             // get token gán vào header khi gọi api
@@ -59,7 +70,6 @@ namespace StudentRegistration.AdminApp.Services.Course
             var course = JsonConvert.DeserializeObject<CourseViewModel>(result);
             return course;
         }
-
         public async Task<bool> Create(CreateCourseRequest request)
         {
             // get token gán vào header khi gọi api

@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = "Danh sách người dùng";
+    ViewData["Controller"] = "User";
+    ViewData["Action"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <div class="container-fluid">
@@ -100,4 +102,9 @@
             </div>
         </div>
     </div>
+    @*paging*@
+    @(await Html.PartialAsync("_Paging",Model))
 </div>
+
+
+

@@ -2,110 +2,115 @@
 @model PagedResult<StudentRegistration.ViewModel.Students.StudentViewModel>
 
 @{
-    ViewData["Title"] = "Danh sách sinh viên";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    <style>
-        .close-icon {
-            font-size: 14px;
-            font-weight: bold;
-            color: #000;
-            cursor: pointer;
-        }        
-    </style>
+	ViewData["Title"] = "Danh sách sinh viên";
+    ViewData["Controller"] = "Student";
+    ViewData["Action"] = "AdminIndex";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+	<style>
+						.close-icon {
+							font-size: 14px;
+							font-weight: bold;
+							color: #000;
+							cursor: pointer;
+						}        
+	</style>
 }
 <div class="container-fluid">
- @if(ViewBag.ApiResponse != null)
-        {
-          var apiResponse = ViewBag.ApiResponse as ApiResponse<string>;
-        if(@apiResponse.Status)
-        {
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                  <strong>@apiResponse.Message</strong>
-                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span class="close-icon"><i class="fas fa-times"></i></span>
-                  </button>
-            </div>
-        } else
-        {
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                  <strong>@apiResponse.Message</strong>
-                  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                  </button>
-            </div>           
-        }
-        <script>
-            $(function () {
-                // Đóng thông báo khi nút "Close" được nhấn
-                $('.alert .close').on('click', function () {
-                    $(this).closest('.alert').alert('close');
-                });
-            });
-        </script>
-    }
-    <h1 class="mt-4">Danh sách sinh viên</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-        <li class="breadcrumb-item active">Danh sách sinh viên</li>
-    </ol>
-    <div class="card mb-4">
-        <div class="card-header">
-            <a class="btn btn-success" asp-action="Create" asp-controller="Student">Tạo mới</a>
-        </div>
+	@if (ViewBag.ApiResponse != null)
+	{
+		var apiResponse = ViewBag.ApiResponse as ApiResponse<string>;
+		if (@apiResponse.Status)
+		{
+											<div class="alert alert-success alert-dismissible fade show" role="alert">
+												  <strong>@apiResponse.Message</strong>
+												  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<span class="close-icon"><i class="fas fa-times"></i></span>
+												  </button>
+											</div>
+		}
+		else
+		{
+											<div class="alert alert-danger alert-dismissible fade show" role="alert">
+												  <strong>@apiResponse.Message</strong>
+												  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+													<span aria-hidden="true">&times;</span>
+												  </button>
+											</div>           
+		}
+						<script>
+							$(function () {
+								// Đóng thông báo khi nút "Close" được nhấn
+								$('.alert .close').on('click', function () {
+									$(this).closest('.alert').alert('close');
+								});
+							});
+						</script>
+	}
+	<h1 class="mt-4">Danh sách sinh viên</h1>
+	<ol class="breadcrumb mb-4">
+		<li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+		<li class="breadcrumb-item active">Danh sách sinh viên</li>
+	</ol>
+	<div class="card mb-4">
+		<div class="card-header">
+			<a class="btn btn-success" asp-action="Create" asp-controller="Student">Tạo mới</a>
+		</div>
 
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>
-                                Mã sinh viên
-                            </th>
-                            <th>
-                                Tên
-                            </th>
-                            <th>
-                               Họ
-                            </th>
-                            <th>
-                               Email
-                            </th>
-                            <th>
-                                Hành động
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.Items)
-                        {
-                            <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Id)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.FirstName)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.LastName)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Email)
-                                </td>
-                                <td>
-                                    <div class="button-group">
-                                        @Html.ActionLink("Update", "Update", new {  id=item.Id.ToString()  },new { @class = "btn btn-primary", style = "display: inline-block;" }) |
-                                        @Html.ActionLink("Details", "Details", new {  id=item.Id.ToString() }, new { @class = "btn btn-info", style = "display: inline-block;" }) |
-                                        <form method="post" asp-action="Delete" asp-controller="Student" asp-route-id="@item.Id" style="display: inline-block">
-                                            <input type="hidden" name="_method" value="DELETE" />
-                                            <button class="btn btn-danger" type="submit">Delete</button>
-                                        </form>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+		<div class="card-body">
+			<div class="table-responsive">
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th>
+								Mã sinh viên
+							</th>
+							<th>
+								Họ
+							</th>
+							<th>
+							   Tên
+							</th>
+							<th>
+							   Email
+							</th>
+							<th>
+								Hành động
+							</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in Model.Items)
+						{
+											<tr>
+												<td>
+									@Html.DisplayFor(modelItem => item.Id)
+												</td>
+												<td>
+									@Html.DisplayFor(modelItem => item.LastName)
+												</td>
+												<td>
+									@Html.DisplayFor(modelItem => item.FirstName)
+												</td>
+												<td>
+									@Html.DisplayFor(modelItem => item.Email)
+												</td>
+												<td>
+													<div class="button-group">
+										@Html.ActionLink("Update", "Update", new {  id=item.Id.ToString()  },new { @class = "btn btn-primary", style = "display: inline-block;" }) |
+										@Html.ActionLink("Details", "Details", new {  id=item.Id.ToString() }, new { @class = "btn btn-info", style = "display: inline-block;" }) |
+														<form method="post" asp-action="Delete" asp-controller="Student" asp-route-id="@item.Id" style="display: inline-block">
+															<input type="hidden" name="_method" value="DELETE" />
+															<button class="btn btn-danger" type="submit">Delete</button>
+														</form>
+													</div>
+												</td>
+											</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+    @*paging*@
+    @(await Html.PartialAsync("_Paging",Model))
 </div>

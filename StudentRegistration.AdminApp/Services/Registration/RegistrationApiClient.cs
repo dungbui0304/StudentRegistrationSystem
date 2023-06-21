@@ -32,13 +32,13 @@ namespace StudentRegistration.AdminApp.Services.Registration
             return result;
         }
 
-        public async Task<PagedResult<RegistrationViewModel>> GetAll()
+        public async Task<PagedResult<RegistrationViewModel>> GetRegistrationPaging(int pageIndex, int pageSize)
         {
             // get token gán vào header khi gọi api
             var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             // thực hiện gọi api
-            var response = await _httpClient.GetAsync("/api/Registration");
+            var response = await _httpClient.GetAsync($"/api/Registration?pageIndex={pageIndex}&pageSize={pageSize}");
             response.EnsureSuccessStatusCode();
             var result = await response.Content.ReadAsStringAsync();
             // convert result to json

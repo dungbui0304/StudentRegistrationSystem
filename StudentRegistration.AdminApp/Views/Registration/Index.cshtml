@@ -3,6 +3,8 @@
 
 @{
     ViewData["Title"] = "Danh sách đăng ký học";
+    ViewData["Controller"] = "Registration";
+    ViewData["Action"] = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -113,5 +115,7 @@
             </div>
         </div>
     </div>
+    @*paging*@
+    @(await Html.PartialAsync("_Paging",Model))
 </div>
 

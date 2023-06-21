@@ -24,7 +24,7 @@ namespace StudentRegistration.AdminApp.Controllers
 
 
         [HttpGet]
-        public async Task<ActionResult> Index()
+        public async Task<ActionResult> Index(int pageIndex, int pageSize = 3)
         {
             if (!IsLoggedIn())
                 return RedirectToAction("Index", "Login");
@@ -32,7 +32,12 @@ namespace StudentRegistration.AdminApp.Controllers
             {
                 return BadRequest(ModelState);
             }
-            var users = await _userApiClient.GetAll();
+
+            if (pageIndex == null || pageIndex <= 0)
+                pageIndex = 1;
+
+            var users = await _userApiClient.GetUserPaging(pageIndex, pageSize);
+            // lấy token lưu trong session
             var token = HttpContext.Session.GetString("Token");
 
             var responseData = TempData["ApiResponse"];

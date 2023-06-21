@@ -13,7 +13,7 @@ namespace StudentRegistration.Application.Registrations
         {
             _context = context;
         }
-        public async Task<PagedResult<RegistrationViewModel>> GetListRegistration()
+        public async Task<PagedResult<RegistrationViewModel>> GetRegistrationPaging(int pageIndex, int pageSize)
         {
             var query = from student in _context.Students
                         join registration in _context.Registrations on student.Id equals registration.StudentId
@@ -27,13 +27,21 @@ namespace StudentRegistration.Application.Registrations
                             CourseName = course.Name,
                             CreateAt = registration.CreateAt,
                         };
+            // tính toán tổng số trang và số lượng item trên mỗi trang
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
             var registrationViewModel = await query.ToListAsync();
 
-            var pageResult = new PagedResult<RegistrationViewModel>()
+            var pagedResult = new PagedResult<RegistrationViewModel>()
             {
-                Items = registrationViewModel
+                Items = registrationViewModel,
+                TotalItems = totalItems,
+                PageSize = pageSize,
+                CurrentPage = pageIndex,
+                TotalPage = totalPages
             };
-            return pageResult;
+            return pagedResult;
         }
 
         public async Task<bool> Create(CreateRegistrationRequest request)

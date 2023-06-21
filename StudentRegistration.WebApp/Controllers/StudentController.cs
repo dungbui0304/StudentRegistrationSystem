@@ -17,9 +17,9 @@ namespace StudentRegistration.BackendApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> GetListStudent()
+        public async Task<ActionResult> GetStudentPaging([FromQuery] int pageIndex, int pageSize)
         {
-            var students = await _studentService.GetListStudent();
+            var students = await _studentService.GetStudentPaging(pageIndex, pageSize);
             if (!ModelState.IsValid)
                 return BadRequest();
             return Ok(students);

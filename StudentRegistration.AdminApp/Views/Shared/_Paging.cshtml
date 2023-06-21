@@ -1,0 +1,46 @@
+﻿@model dynamic
+
+@{
+	string controller = ViewData["Controller"] as string ?? "User";
+	string action = ViewData["Action"] as string ?? "Index";
+}
+
+<nav aria-label="Page navigation example" class="d-flex justify-content-end mt-4">
+	<ul class="pagination">
+		@if (Model.TotalPage > 3)
+		{
+			<li class="page-item @(Model.CurrentPage == 1 ? "disabled":"")">
+			    <a class="page-link" aria-label="Previous" asp-controller="@controller" asp-action="@action" asp-route-pageIndex="@(Model.CurrentPage-1)">
+			        <span aria-hidden="true">&laquo;</span>
+			    </a>
+			</li>
+			@for (int i = Model.CurrentPage-1; i <= Model.CurrentPage+1; i++)
+			{
+			    if(i > 0 && i <= Model.TotalPage) 
+			    {
+			        <li class="page-item @(i==Model.CurrentPage ? "active":"")">
+			           <a asp-controller="@controller" asp-action="@action" asp-route-pageIndex="@i" class="page-link">
+						@i
+			           </a>
+			        </li>   
+			    }
+			}
+			<li class="page-item @(Model.CurrentPage == Model.TotalPage ? "disabled":"")">
+			    <a class="page-link" asp-controller="@controller" asp-action="@action" asp-route-pageIndex="@(Model.CurrentPage+1)" aria-label="Next">
+			        <span aria-hidden="true">&raquo;</span>
+			    </a>
+			</li>
+		} 
+		else
+		{
+		    @for (int i = 1; i <= Model.TotalPage; i++)
+		    {
+		        <li class="page-item">
+		           <a asp-controller="@controller" asp-action="@action" asp-route-pageIndex="@i" class="page-link">
+		            @i
+		           </a>
+		        </li>   
+		    }
+		}
+	</ul>
+</nav>

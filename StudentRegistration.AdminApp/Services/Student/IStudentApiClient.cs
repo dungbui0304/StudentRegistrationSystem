@@ -6,7 +6,7 @@ namespace StudentRegistration.AdminApp.Services
     public interface IStudentApiClient
     {
         public Task<bool> Create(CreateStudentRequest request);
-        public Task<PagedResult<StudentViewModel>> GetAll();
+        public Task<PagedResult<StudentViewModel>> GetStudentPaging(int pageIndex, int pageSize);
         public Task<UpdateStudentRequest> GetById(string id);
         public Task<StudentViewModel> GetByUserId(Guid id);
         public Task<bool> Update(UpdateStudentRequest request);

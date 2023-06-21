@@ -17,20 +17,30 @@ namespace StudentRegistration.Application.Students
             _context = context;
             _userManager = userManager;
         }
-        public async Task<PagedResult<StudentViewModel>> GetListStudent()
+        public async Task<PagedResult<StudentViewModel>> GetStudentPaging(int pageIndex, int pageSize)
         {
-            var students = _context.Students.ToList();
-            var studentViewModel = students.Select(x => new StudentViewModel()
+            // tính toán tổng số trang và số lượng item trên mỗi trang
+            var totalItems = await _context.Students.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pageSize);
+
+            // lấy dữ liệu trang hiện tại
+            var currentPageData = _context.Students.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+            var studentViewModel = currentPageData.Select(s => new StudentViewModel
             {
-                Id = x.Id,
-                FirstName = x.FirstName,
-                LastName = x.LastName,
-                Email = x.Email,
-                PhoneNumber = x.PhoneNumber
+                Id = s.Id,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                PhoneNumber = s.PhoneNumber,
+                Email = s.Email
             }).ToList();
+
             var pagedResult = new PagedResult<StudentViewModel>()
             {
                 Items = studentViewModel,
+                TotalItems = totalItems,
+                PageSize = pageSize,
+                CurrentPage = pageIndex,
+                TotalPage = totalPages
             };
             return pagedResult;
         }
@@ -193,7 +203,6 @@ namespace StudentRegistration.Application.Students
             }
             return false;
         }
-
         public async Task<PagedResult<CourseRegisterViewModel>> GetCourseRegister(string studentId)
         {
             var query = from student in _context.Students
