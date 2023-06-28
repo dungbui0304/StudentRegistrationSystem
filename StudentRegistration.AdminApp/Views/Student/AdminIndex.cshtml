@@ -1,4 +1,5 @@
 ﻿@using StudentRegistration.ViewModel.Common
+@using StudentRegistration.ViewModel.Students
 @model PagedResult<StudentRegistration.ViewModel.Students.StudentViewModel>
 
 @{
@@ -6,93 +7,134 @@
     ViewData["Controller"] = "Student";
     ViewData["Action"] = "AdminIndex";
 	Layout = "~/Views/Shared/_Layout.cshtml";
-	<style>
-						.close-icon {
-							font-size: 14px;
-							font-weight: bold;
-							color: #000;
-							cursor: pointer;
-						}        
-	</style>
 }
+<style>
+	.close-icon {
+		font-size: 14px;
+		font-weight: bold;
+		color: #000;
+		cursor: pointer;
+	}        
+    .btn-create {
+        background-color: #28a745;
+		text-decoration: none;
+        color: #fff;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-create:hover {
+        background-color: #218838;
+    }
+
+    .btn-import {
+		margin-top: 5px;
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        padding: 6px 15px;
+        border-radius: 4px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-import:hover {
+        background-color: #0069d9;
+    }
+</style>		
+
 <div class="container-fluid">
+
 	@if (ViewBag.ApiResponse != null)
 	{
 		var apiResponse = ViewBag.ApiResponse as ApiResponse<string>;
 		if (@apiResponse.Status)
 		{
-											<div class="alert alert-success alert-dismissible fade show" role="alert">
-												  <strong>@apiResponse.Message</strong>
-												  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span class="close-icon"><i class="fas fa-times"></i></span>
-												  </button>
-											</div>
+			<div class="alert alert-success alert-dismissible fade show" role="alert">
+				  <strong>@apiResponse.Message</strong>
+				  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span class="close-icon"><i class="fas fa-times"></i></span>
+				  </button>
+			</div>
 		}
 		else
 		{
-											<div class="alert alert-danger alert-dismissible fade show" role="alert">
-												  <strong>@apiResponse.Message</strong>
-												  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-													<span aria-hidden="true">&times;</span>
-												  </button>
-											</div>           
+			<div class="alert alert-danger alert-dismissible fade show" role="alert">
+				  <strong>@apiResponse.Message</strong>
+				  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				  </button>
+			</div>           
 		}
-						<script>
-							$(function () {
-								// Đóng thông báo khi nút "Close" được nhấn
-								$('.alert .close').on('click', function () {
-									$(this).closest('.alert').alert('close');
-								});
-							});
-						</script>
+			<script>
+				$(function () {
+					// Đóng thông báo khi nút "Close" được nhấn
+					$('.alert .close').on('click', function () {
+						$(this).closest('.alert').alert('close');
+					});
+				});
+			</script>
 	}
 	<h1 class="mt-4">Danh sách sinh viên</h1>
 	<ol class="breadcrumb mb-4">
-		<li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
-		<li class="breadcrumb-item active">Danh sách sinh viên</li>
+			<li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+			<li class="breadcrumb-item active">Danh sách sinh viên</li>
 	</ol>
-	<div class="card mb-4">
-		<div class="card-header">
-			<a class="btn btn-success" asp-action="Create" asp-controller="Student">Tạo mới</a>
-		</div>
 
-		<div class="card-body">
-			<div class="table-responsive">
-				<table class="table table-bordered">
-					<thead>
-						<tr>
-							<th>
-								Mã sinh viên
-							</th>
-							<th>
-								Họ
-							</th>
-							<th>
-							   Tên
-							</th>
-							<th>
-							   Email
-							</th>
-							<th>
-								Hành động
-							</th>
-						</tr>
-					</thead>
-					<tbody>
-						@foreach (var item in Model.Items)
-						{
-											<tr>
-												<td>
-									@Html.DisplayFor(modelItem => item.Id)
-												</td>
-												<td>
-									@Html.DisplayFor(modelItem => item.LastName)
-												</td>
-												<td>
-									@Html.DisplayFor(modelItem => item.FirstName)
-												</td>
-												<td>
-									@Html.DisplayFor(modelItem => item.Email)
+	<div class="card-header">
+		<a class="btn btn-create" asp-action="Create" asp-controller="Student">Tạo mới</a>
+		<form method="post" class="import-form" enctype="multipart/form-data">
+			<div class="form-group">
+				<button asp-action="ImportExcel" class="btn btn-import" type="submit">Import</button>
+				<label for="excelFile">Chọn tệp</label>
+				<input type="file" id="excelFile" name="excelFile">
+			</div>
+		</form>
+	</div>
+
+	<div class="card ">
+			<div class="card-body">
+						<div class="table-responsive">
+							<table class="table table-bordered">
+								<thead>
+									<tr>
+										<th>
+											Mã sinh viên
+										</th>
+										<th>
+											Họ
+										</th>
+										<th>
+										   Tên
+										</th>
+										<th>
+										   Email
+										</th>
+										<th>
+											Hành động
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									@foreach (var item in Model.Items)
+									{
+										<tr>
+											<td>
+										@Html.DisplayFor(modelItem => item.Id)
+													</td>
+													<td>
+										@Html.DisplayFor(modelItem => item.LastName)
+													</td>
+													<td>
+										@Html.DisplayFor(modelItem => item.FirstName)
+													</td>
+													<td>
+										@Html.DisplayFor(modelItem => item.Email)
 												</td>
 												<td>
 													<div class="button-group">
@@ -102,15 +144,23 @@
 															<input type="hidden" name="_method" value="DELETE" />
 															<button class="btn btn-danger" type="submit">Delete</button>
 														</form>
-													</div>
-												</td>
+											</div>
+											</td>
 											</tr>
-						}
-					</tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-    @*paging*@
-    @(await Html.PartialAsync("_Paging",Model))
+									}
+								</tbody>
+							</table>
+						</div>
+			</div>			
+	</div>		
+	<form method="post">
+		<button  style="float:right;" asp-action="ExportExcel" class="btn btn-import" type="submit">Export</button>
+	</form>
+	
+	@*paging*@
+	@await Html.PartialAsync("_Paging", Model, ViewData)
+
 </div>
+
+
+

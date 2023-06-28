@@ -17,19 +17,6 @@ namespace StudentRegistration.AdminApp.Services
             _configuration = configuration;
             _httpContextAccessor = httpContextAccessor;
         }
-        public async Task<bool> Delete(string id)
-        {
-            // get token gán vào header khi gọi api
-            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            // thực hiện gọi api
-            var response = await _httpClient.DeleteAsync($"/api/Student/{id}");
-            response.EnsureSuccessStatusCode();
-            var data = await response.Content.ReadAsStringAsync();
-            // convert result to json
-            var result = JsonConvert.DeserializeObject<bool>(data);
-            return result;
-        }
         public async Task<PagedResult<StudentViewModel>> GetStudentPaging(int pageIndex, int pageSize)
         {
             // get token gán vào header khi gọi api
@@ -42,6 +29,32 @@ namespace StudentRegistration.AdminApp.Services
             // convert result to json
             var students = JsonConvert.DeserializeObject<PagedResult<StudentViewModel>>(result);
             return students;
+        }
+        public async Task<List<StudentViewModel>> GetAll()
+        {
+            // get token gán vào header khi gọi api
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            // thực hiện gọi api
+            var response = await _httpClient.GetAsync($"/api/Student/all-student");
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadAsStringAsync();
+            // convert result to json
+            var listStudents = JsonConvert.DeserializeObject<List<StudentViewModel>>(result);
+            return listStudents;
+        }
+        public async Task<bool> Delete(string id)
+        {
+            // get token gán vào header khi gọi api
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            // thực hiện gọi api
+            var response = await _httpClient.DeleteAsync($"/api/Student/{id}");
+            response.EnsureSuccessStatusCode();
+            var data = await response.Content.ReadAsStringAsync();
+            // convert result to json
+            var result = JsonConvert.DeserializeObject<bool>(data);
+            return result;
         }
         public async Task<UpdateStudentRequest> GetById(string id)
         {
@@ -127,7 +140,7 @@ namespace StudentRegistration.AdminApp.Services
             // tạo chuỗi httpContent để gửi đi
             var httpContent = new StringContent(json, Encoding.UTF8, "application/json");
             // thực hiện gọi api
-            var response = await _httpClient.PostAsync($"/api/Student/changepassword", httpContent);
+            var response = await _httpClient.PostAsync($"/api/Student/change-password", httpContent);
             response.EnsureSuccessStatusCode();
             var data = await response.Content.ReadAsStringAsync();
             // convert result to json
@@ -146,6 +159,52 @@ namespace StudentRegistration.AdminApp.Services
             // convert result to json
             var courseRegister = JsonConvert.DeserializeObject<PagedResult<CourseRegisterViewModel>>(result);
             return courseRegister;
+        }
+        public async Task<PagedResult<StudentViewModel>> SearchStudent(string SearchString, int pagedIndex)
+        {
+            // get token gán vào header khi gọi api
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            // thực hiện gọi api
+            var response = await _httpClient.GetAsync($"/api/Student/search-student?SearchString={SearchString}&pagedIndex={pagedIndex}");
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadAsStringAsync();
+            // convert result to json
+            var students = JsonConvert.DeserializeObject<PagedResult<StudentViewModel>>(result);
+            return students;
+        }
+        public async Task<bool> ImportExcel(IFormFile excelFile)
+        {
+            // get token gán vào header khi gọi api
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // convert data excelFile to MultipartFormDataContent
+            var multipartContent = new MultipartFormDataContent();
+            var fileContent = new StreamContent(excelFile.OpenReadStream());
+            multipartContent.Add(fileContent, "UploadFile", excelFile.FileName);
+
+            // thực hiện gọi api
+            var response = await _httpClient.PostAsync($"/api/Student/upload-file", multipartContent);
+            response.EnsureSuccessStatusCode();
+
+            var data = await response.Content.ReadAsStringAsync();
+            // convert data to json
+            var result = JsonConvert.DeserializeObject<bool>(data);
+            return result;
+        }
+        public async Task<byte[]> ExportExcel()
+        {
+            // get token gán vào header khi gọi api
+            var token = _httpContextAccessor.HttpContext.Session.GetString("Token");
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            // thực hiện gọi api
+            var response = await _httpClient.PostAsync($"/api/Student/export-file", null);
+            response.EnsureSuccessStatusCode();
+
+            var data = await response.Content.ReadAsByteArrayAsync();
+            return data;
         }
     }
 }

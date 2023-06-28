@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using StudentRegistration.Data.EF;
 using StudentRegistration.Data.Entities;
 using StudentRegistration.ViewModel.Common;
 using StudentRegistration.ViewModel.Students;
+using System.Drawing;
 using System.Security.Claims;
 
 namespace StudentRegistration.Application.Students
@@ -44,56 +46,60 @@ namespace StudentRegistration.Application.Students
             };
             return pagedResult;
         }
+        public async Task<List<StudentViewModel>> GetAll()
+        {
+            var listStudents = await _context.Students.Select(s => new StudentViewModel()
+            {
+                Id = s.Id,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                Email = s.Email,
+                PhoneNumber = s.PhoneNumber
+            }).ToListAsync();
+            return listStudents;
+        }
         public async Task<bool> Create(CreateStudentRequest request)
         {
-            try
+            var user = new User()
             {
-                var user = new User()
-                {
-                    Id = Guid.NewGuid(),
-                    UserName = request.Id,
-                    PhoneNumber = request.PhoneNumber,
-                    Email = request.Email,
-                    SecurityStamp = Guid.NewGuid().ToString(),
-                    FirstLogin = true
-                };
-                var result = await _userManager.CreateAsync(user, "12345678");
+                Id = Guid.NewGuid(),
+                UserName = request.Id,
+                PhoneNumber = request.PhoneNumber,
+                Email = request.Email,
+                SecurityStamp = Guid.NewGuid().ToString(),
+                FirstLogin = true
+            };
+            var result = await _userManager.CreateAsync(user, "12345678");
 
-                //var roleExits = await _roleManager.RoleExistsAsync("student");
-                //if (!roleExits)
-                //{
-                //    // tạo role mới
-                //    var role = new Role { Name = "student" };
-                //    await _roleManager.CreateAsync(role);
-                //}
-                if (!result.Succeeded)
-                {
-                    return false;
-                    throw new Exception("Cannot create user");
-                }
-                await _userManager.AddToRoleAsync(user, "student");
-
-                var student = new Student()
-                {
-                    Id = request.Id,
-                    FirstName = request.FirstName,
-                    LastName = request.LastName,
-                    Email = request.Email,
-                    PhoneNumber = request.PhoneNumber,
-                    User = user,
-                    UserId = user.Id,
-
-                };
-                _context.Add(student);
-
-                await _context.SaveChangesAsync();
-                return true;
-            }
-            catch (Exception ex)
+            //var roleExits = await _roleManager.RoleExistsAsync("student");
+            //if (!roleExits)
+            //{
+            //    // tạo role mới
+            //    var role = new Role { Name = "student" };
+            //    await _roleManager.CreateAsync(role);
+            //}
+            if (!result.Succeeded)
             {
                 return false;
-                throw new Exception("Cannot create student", ex);
+                throw new Exception("Cannot create user");
+            }
+            await _userManager.AddToRoleAsync(user, "student");
+
+            var student = new Student()
+            {
+                Id = request.Id,
+                FirstName = request.FirstName,
+                LastName = request.LastName,
+                Email = request.Email,
+                PhoneNumber = request.PhoneNumber,
+                User = user,
+                UserId = user.Id,
+
             };
+            _context.Add(student);
+
+            await _context.SaveChangesAsync();
+            return true;
         }
         public async Task<bool> Delete(string Id)
         {
@@ -221,6 +227,180 @@ namespace StudentRegistration.Application.Students
                 Items = courseRegisterViewModel
             };
             return pageResult;
+        }
+        public async Task<PagedResult<StudentViewModel>> SearchStudent(string searchString, int pagedIndex)
+        {
+            // lấy dữ liệu theo searchString
+            var searchData = _context.Students.Where(s =>
+                                s.FirstName.Contains(searchString.ToLower()) ||
+                                s.LastName.Contains(searchString.ToLower()) ||
+                                s.PhoneNumber.Contains(searchString.ToLower()));
+            if (!searchData.Any())
+            {
+                return new PagedResult<StudentViewModel>()
+                {
+                    Items = new List<StudentViewModel>(),
+                    PageSize = 0,
+                    CurrentPage = 0,
+                    TotalItems = 0,
+                    TotalPage = 0
+                };
+            }
+            // tính toán tổng số trang và số lượng item trên mỗi trang
+            double pagedSize = 3.0;
+            var totalItems = searchData.Count();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)pagedSize);
+
+            var searchResults = searchData.Skip((int)((pagedIndex - 1) * pagedSize)).Take((int)pagedSize);
+            var studentViewModel = searchResults.Select(s => new StudentViewModel
+            {
+                Id = s.Id,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                PhoneNumber = s.PhoneNumber,
+                Email = s.Email
+            }).ToList();
+
+            var pagedResult = new PagedResult<StudentViewModel>()
+            {
+                Items = studentViewModel,
+                TotalItems = totalItems,
+                PageSize = (int?)pagedSize,
+                CurrentPage = pagedIndex,
+                TotalPage = totalPages
+            };
+            return pagedResult;
+        }
+        public async Task<bool> ImportExcel(Stream fileStream)
+        {
+            var listStudent = new List<CreateStudentRequest>();
+            try
+            {
+                using (var package = new ExcelPackage(fileStream))
+                {
+                    if (package.Workbook.Worksheets.Count < 1)
+                    {
+                        throw new Exception("No worksheets found in the Excel file.");
+                    }
+                    var workSheet = package.Workbook.Worksheets[1];
+                    var rowCount = workSheet.Dimension.End.Row; // get row count
+                    var columnCount = workSheet.Dimension.End.Column; // get column count
+
+                    for (int row = 2; row <= rowCount; row++)
+                    {
+                        var student = new CreateStudentRequest();
+                        for (int column = 1; column <= columnCount; column++)
+                        {
+                            var cellValues = workSheet.Cells[row, column].Value.ToString();
+                            if (column == 1)
+                                student.Id = cellValues;
+                            else if (column == 2)
+                                student.FirstName = cellValues;
+                            else if (column == 3)
+                                student.LastName = cellValues;
+                            else if (column == 4)
+                                student.Email = cellValues;
+                            else if (column == 5)
+                                student.PhoneNumber = cellValues;
+                        }
+                        listStudent.Add(student);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
+
+            foreach (var students in listStudent)
+            {
+                var user = new User()
+                {
+                    Id = Guid.NewGuid(),
+                    UserName = students.Id,
+                    PhoneNumber = students.PhoneNumber,
+                    Email = students.Email,
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    FirstLogin = true
+                };
+                var result = await _userManager.CreateAsync(user, "12345678");
+
+                if (!result.Succeeded)
+                {
+                    throw new Exception("Cannot create user");
+                }
+                await _userManager.AddToRoleAsync(user, "student");
+
+                var student = new Student()
+                {
+                    Id = students.Id,
+                    FirstName = students.FirstName,
+                    LastName = students.LastName,
+                    Email = students.Email,
+                    PhoneNumber = students.PhoneNumber,
+                    User = user,
+                    UserId = user.Id,
+
+                };
+                _context.Add(student);
+            }
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<byte[]> ExportExcel()
+        {
+            // get list student from db
+            var listStudents = await _context.Students.Select(s => new StudentViewModel()
+            {
+                Id = s.Id,
+                FirstName = s.FirstName,
+                LastName = s.LastName,
+                Email = s.Email,
+                PhoneNumber = s.PhoneNumber
+            }).ToListAsync();
+
+            using (var package = new ExcelPackage())
+            {
+                // tạo 1 sheet mới
+                ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Sheet1");
+                // Add header
+                var properties = listStudents[0].GetType().GetProperties();
+                var column = 1;
+                foreach (var property in properties)
+                {
+                    var header = property.Name;
+                    worksheet.Cells[1, column].Value = header;
+                    column++;
+                }
+                // thêm màu cho header
+                using (var range = worksheet.Cells[1, 1, 1, properties.Length])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(Color.DarkBlue);
+                    range.Style.Font.Color.SetColor(Color.White);
+                }
+                // thêm dữ liệu vào file excel
+                var row = 2;
+                foreach (var item in listStudents)
+                {
+                    column = 1;
+                    foreach (var property in properties)
+                    {
+                        var value = property.GetValue(item);
+                        worksheet.Cells[row, column].Value = value;
+                        column++;
+                    }
+                    row++;
+                }
+
+                // lưu file excel vào 1 memoryStream
+                using (var memoryStream = new MemoryStream())
+                {
+                    package.SaveAs(memoryStream);
+                    return memoryStream.ToArray();
+                }
+            }
         }
     }
 }

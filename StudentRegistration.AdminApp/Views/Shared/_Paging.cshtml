@@ -3,7 +3,8 @@
 @{
 	string controller = ViewData["Controller"] as string ?? "User";
 	string action = ViewData["Action"] as string ?? "Index";
-}
+	string currentFilter = ViewData["CurrentFilter"] as string;
+};
 
 <nav aria-label="Page navigation example" class="d-flex justify-content-end mt-4">
 	<ul class="pagination">
@@ -35,8 +36,8 @@
 		{
 		    @for (int i = 1; i <= Model.TotalPage; i++)
 		    {
-		        <li class="page-item">
-		           <a asp-controller="@controller" asp-action="@action" asp-route-pageIndex="@i" class="page-link">
+		        <li class="page-item @(i==Model.CurrentPage ? "active":"")">
+		           <a asp-route-CurrentFilter="@currentFilter" asp-controller="@controller" asp-action="@action" asp-route-pageIndex="@i" class="page-link">
 		            @i
 		           </a>
 		        </li>   

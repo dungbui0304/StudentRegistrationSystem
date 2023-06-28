@@ -24,6 +24,15 @@ namespace StudentRegistration.BackendApi.Controllers
                 return BadRequest();
             return Ok(students);
         }
+
+        [HttpGet("all-student")]
+        public async Task<ActionResult> GetAll()
+        {
+            var listStudents = await _studentService.GetAll();
+            if (!ModelState.IsValid)
+                return BadRequest();
+            return Ok(listStudents);
+        }
         [HttpGet("CourseRegister/{studentId}")]
         public async Task<IActionResult> GetCourseRegister(string studentId)
         {
@@ -87,7 +96,7 @@ namespace StudentRegistration.BackendApi.Controllers
             return Ok(result);
         }
 
-        [HttpPost("changepassword")]
+        [HttpPost("change-password")]
         public async Task<ActionResult> ChangePassword(ChangePassword request)
         {
             var Claimpricipal = User;
@@ -95,6 +104,42 @@ namespace StudentRegistration.BackendApi.Controllers
             if (!result)
                 return BadRequest("Change password fail!");
             return Ok(result);
+        }
+
+        [HttpGet("search-student")]
+        public async Task<IActionResult> SearchStudent(string SearchString, int pagedIndex)
+        {
+            var searchResults = await _studentService.SearchStudent(SearchString, pagedIndex);
+            if (searchResults == null)
+                return NotFound("No student match keyword!");
+            return Ok(searchResults);
+        }
+
+        [HttpPost("upload-file")]
+        public async Task<IActionResult> ImportExcel()
+        {
+            var file = Request.Form.Files.FirstOrDefault();
+            if (file == null)
+                return BadRequest("No file found!");
+
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+                var result = await _studentService.ImportExcel(memoryStream);
+
+                if (!result)
+                {
+                    return BadRequest("Import failed");
+                }
+                return Ok(result);
+            }
+        }
+
+        [HttpPost("export-file")]
+        public async Task<IActionResult> ExportExcel()
+        {
+            byte[] excelData = await _studentService.ExportExcel();
+            return File(excelData, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         }
     }
 }

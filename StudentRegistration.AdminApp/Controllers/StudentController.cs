@@ -79,26 +79,62 @@ namespace StudentRegistration.AdminApp.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult> AdminIndex(int pageIndex, int pageSize = 3)
+        public async Task<ActionResult> AdminIndex(string SearchString, string CurrentFilter, int pageIndex, int pageSize = 3)
         {
             if (!IsLoggedIn())
                 return RedirectToAction("Index", "Login");
-            if (!ModelState.IsValid)
+            if (pageIndex <= 0)
             {
-                return BadRequest(ModelState);
-            }
-            if (pageIndex == null || pageIndex <= 0)
                 pageIndex = 1;
-
-            var students = await _studentApiClient.GetStudentPaging(pageIndex, pageSize);
-            var responseData = TempData["ApiResponse"];
-            if (responseData != null)
-            {
-                var apiResponse = JsonConvert.DeserializeObject<ApiResponse<string>>((string)responseData);
-                TempData["ApiResponse"] = null;
-                ViewBag.ApiResponse = apiResponse;
             }
-            return View(students);
+            else
+            {
+                SearchString = CurrentFilter;
+            }
+            //if (!ModelState.IsValid)
+            //{
+            //    return BadRequest(ModelState);
+            //}
+            if (string.IsNullOrEmpty(SearchString))
+            {
+                var students = await _studentApiClient.GetStudentPaging(pageIndex, pageSize);
+                var dataResponse = TempData["ApiResponse"];
+                if (dataResponse != null)
+                {
+                    var apiResponse = JsonConvert.DeserializeObject<ApiResponse<string>>((string)dataResponse);
+                    TempData["ApiResponse"] = null;
+                    ViewBag.ApiResponse = apiResponse;
+                }
+                return View(students);
+            }
+            else
+            {
+                var studentSearchs = await _studentApiClient.SearchStudent(SearchString, pageIndex);
+
+                // sử dung TempData và ViewBag để truyền dữ liệu từ controller sang view
+                if (studentSearchs.Items == null || studentSearchs.Items.Count == 0)
+                {
+                    var errorResponse = new ApiResponse<StudentViewModel>()
+                    {
+                        Status = false,
+                        Data = null,
+                        Message = "Không tìm thấy sinh viên!"
+                    };
+                    TempData["SearchResults"] = JsonConvert.SerializeObject(errorResponse);
+
+                    var dataSearchErrorResponse = TempData["SearchResults"];
+                    if (dataSearchErrorResponse != null)
+                    {
+                        var apiSearchResponse = JsonConvert.DeserializeObject<ApiResponse<StudentViewModel>>((string)dataSearchErrorResponse);
+                        TempData["SearchResults"] = null;
+                        ViewBag.SearchResults = apiSearchResponse;
+                    }
+                    return View(studentSearchs);
+                }
+                ViewBag.CurrentFilter = SearchString;
+
+                return View(studentSearchs);
+            }
         }
 
         [HttpGet]
@@ -197,6 +233,57 @@ namespace StudentRegistration.AdminApp.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             HttpContext.Session.Remove("Token");
             return RedirectToAction("AdminIndex", "Login");
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> SearchStudent(string searchString, int pagedIndex)
+        {
+
+            if (!IsLoggedIn())
+                return RedirectToAction("Index", "Login");
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            if (pagedIndex <= 0)
+                pagedIndex = 1;
+
+            var students = await _studentApiClient.SearchStudent(searchString, pagedIndex);
+
+
+            return RedirectToAction("AdminIndex", "Student");
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> ImportExcel(IFormFile excelFile)
+        {
+            var result = await _studentApiClient.ImportExcel(excelFile);
+            if (!result)
+                return NotFound("Cannot import File Excel");
+            var successResponse = new ApiResponse<string>()
+            {
+                Status = true,
+                Message = $"Import dữ liệu thành công!"
+            };
+            TempData["ApiResponse"] = JsonConvert.SerializeObject(successResponse);
+            return RedirectToAction("AdminIndex", "Student");
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> ExportExcel()
+        {
+            try
+            {
+                var excelData = await _studentApiClient.ExportExcel();
+                System.IO.File.WriteAllBytes(Path.Combine(Directory.GetCurrentDirectory(), "Exports", "Export-Data-Student.xlsx"), excelData);
+                return RedirectToAction("AdminIndex", "Student");
+
+            }
+            catch (Exception ex)
+            {
+                throw new Exception(ex.ToString());
+            }
         }
     }
 }

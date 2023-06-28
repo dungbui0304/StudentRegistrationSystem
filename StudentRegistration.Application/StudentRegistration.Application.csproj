@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="EPPlus.Core" Version="1.5.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Student.Data\StudentRegistration.Data.csproj" />
     <ProjectReference Include="..\StudentRegistration.Ultilites\StudentRegistration.Ultilites.csproj" />
     <ProjectReference Include="..\StudentRegistration.ViewModel\StudentRegistration.ViewModel.csproj" />

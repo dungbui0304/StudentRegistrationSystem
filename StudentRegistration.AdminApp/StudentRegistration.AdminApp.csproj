@@ -24,4 +24,8 @@
     <ProjectReference Include="..\StudentRegistration.ViewModel\StudentRegistration.ViewModel.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Exports\" />
+  </ItemGroup>
+
 </Project>
